@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VAISHNAVI MOTOR - Dashboard</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Existing Supabase connection -->
+    <script src="app.js?v=6"></script>
+    <link rel="stylesheet" href="style.css?v=10">
+
+
+</head>
+
+<body>
+
+    <!-- ================= LOADING ================= -->
+
+    <div id="loadingOverlay">
+
+        <div class="loading-box">
+
+            <h2>Checking login...</h2>
+
+            <p>Please wait</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            🧾 VAISHNAVI MOTOR
+        </div>
+
+        <div class="nav-links">
+
+            <a href="index.html">
+                Dashboard
+            </a>
+
+            <a href="new_bill.html">
+                New Receipt
+            </a>
+
+            <a href="receipts.html">
+                Receipt History
+            </a>
+
+            <!-- LOGOUT BUTTON -->
+            <button type="button" class="logout-btn" onclick="logoutUser()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="container">
+
+        <h1 class="page-title">
+            Dashboard
+        </h1>
+
+        <p class="subtitle">
+            VAISHNAVI MOTOR - Rewinding and Engineering Works
+        </p>
+
+
+        <!-- ================= DASHBOARD CARDS ================= -->
+
+        <div class="cards">
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Customers
+                </div>
+
+                <div class="card-value" id="customerCount">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Receipts
+                </div>
+
+                <div class="card-value" id="billCount">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Collection
+                </div>
+
+                <div class="card-value" id="totalSales">
+
+                    ₹0.00
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Today's Receipts
+                </div>
+
+                <div class="card-value" id="todayBills">
+
+                    0
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= RECENT RECEIPTS ================= -->
+
+        <section class="receipt-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Recent Receipts
+                </h2>
+
+                <a href="receipts.html" class="view-all">
+
+                    View All
+
+                </a>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Receipt No.
+                            </th>
+
+                            <th>
+                                Customer
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="recentBills">
+
+                        <tr>
+
+                            <td colspan="4" class="empty-message">
+
+                                Loading receipts...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        Developed by: Vishvesh Mahadev Ghevare
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+        /* =========================================
+                                                                                   LOAD DASHBOARD DATA
+                                                                                ========================================= */
+
+        async function loadDashboardData() {
+
+            try {
+
+                /* CUSTOMERS */
+
+                const {
+                    count: customerCount,
+                    error: customerError
+                } = await supabaseClient
+                    .from("customers")
+                    .select("*", {
+                        count: "exact",
+                        head: true
+                    });
+
+
+                if (customerError) {
+
+                    console.error(
+                        "Customer error:",
+                        customerError
+                    );
+
+                }
+
+
+                document.getElementById(
+                        "customerCount"
+                    ).textContent =
+                    customerCount || 0;
+
+
+                /* RECEIPTS */
+
+                const {
+                    data: bills,
+                    error: billError
+                } = await supabaseClient
+                    .from("bills")
+                    .select(`
+                        id,
+                        bill_number,
+                        total,
+                        bill_date,
+                        created_at,
+                        customer_id,
+                        customers (
+                            name
+                        )
+                    `)
+                    .order(
+                        "created_at", {
+                            ascending: false
+                        }
+                    );
+
+
+                if (billError) {
+
+                    console.error(
+                        "Receipt error:",
+                        billError
+                    );
+
+                    return;
+                }
+
+
+                const receiptData =
+                    bills || [];
+
+
+                document.getElementById(
+                        "billCount"
+                    ).textContent =
+                    receiptData.length;
+
+
+                /* TOTAL COLLECTION */
+
+                let totalCollection = 0;
+
+
+                receiptData.forEach(
+                    receipt => {
+
+                        totalCollection +=
+                            Number(
+                                receipt.total || 0
+                            );
+
+                    }
+                );
+
+
+                document.getElementById(
+                        "totalSales"
+                    ).textContent =
+                    "₹" +
+                    totalCollection.toFixed(2);
+
+
+                /* TODAY */
+
+                const today =
+                    new Date()
+                    .toLocaleDateString(
+                        "en-IN"
+                    );
+
+
+                let todayCount = 0;
+
+
+                receiptData.forEach(
+                    receipt => {
+
+                        if (!receipt.bill_date) {
+                            return;
+                        }
+
+
+                        const receiptDate =
+                            new Date(
+                                receipt.bill_date
+                            ).toLocaleDateString(
+                                "en-IN"
+                            );
+
+
+                        if (
+                            receiptDate === today
+                        ) {
+
+                            todayCount++;
+
+                        }
+
+                    }
+                );
+
+
+                document.getElementById(
+                        "todayBills"
+                    ).textContent =
+                    todayCount;
+
+
+                window.dashboardReceiptData =
+                    receiptData;
+
+
+                renderRecentReceipts();
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           RECENT RECEIPTS
+        ========================================= */
+
+        function renderRecentReceipts() {
+
+            const receiptData =
+                window.dashboardReceiptData || [];
+
+
+            const recentTable =
+                document.getElementById(
+                    "recentBills"
+                );
+
+
+            if (!recentTable) {
+                return;
+            }
+
+
+            if (
+                receiptData.length === 0
+            ) {
+
+                recentTable.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="empty-message">
+
+                            No receipts available yet.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+            }
+
+
+            const shown =
+                receiptData.slice(0, 10);
+
+
+            recentTable.innerHTML = "";
+
+
+            shown.forEach(
+                receipt => {
+
+                    /* CORRECT SYNTAX */
+
+                    const customerName =
+                        receipt.customers?.name ||
+                        "Unknown Customer";
+
+
+                    const date =
+                        receipt.bill_date ?
+                        new Date(
+                            receipt.bill_date
+                        ).toLocaleDateString(
+                            "en-IN"
+                        ) :
+                        "-";
+
+
+                    const total =
+                        Number(
+                            receipt.total || 0
+                        ).toFixed(2);
+
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+
+                            <strong>
+                                ${escapeDashboardText(
+                                    receipt.bill_number
+                                )}
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            ${escapeDashboardText(
+                                customerName
+                            )}
+
+                        </td>
+
+                        <td>
+                            ${date}
+                        </td>
+
+                        <td class="amount">
+
+                            ₹${total}
+
+                        </td>
+
+                    `;
+
+
+                    recentTable.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =========================================
+           ESCAPE HTML
+        ========================================= */
+
+        function escapeDashboardText(text) {
+
+            return String(
+                    text || ""
+                )
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /* =========================================
+           LOGIN CHECK
+        ========================================= */
+
+        async function startDashboard() {
+
+            try {
+
+                const {
+                    data: {
+                        session
+                    },
+                    error
+                } =
+                await supabaseClient.auth
+                    .getSession();
+
+
+                if (error) {
+
+                    console.error(
+                        "Login check error:",
+                        error
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+                }
+
+
+                if (!session) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+                }
+
+
+                console.log(
+                    "✅ User logged in"
+                );
+
+
+                await loadDashboardData();
+
+
+                const loadingOverlay =
+                    document.getElementById(
+                        "loadingOverlay"
+                    );
+
+
+                if (loadingOverlay) {
+
+                    loadingOverlay.style.display =
+                        "none";
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard startup error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           LOGOUT
+        ========================================= */
+
+        async function logoutUser() {
+
+            try {
+
+                const {
+                    error
+                } =
+                await supabaseClient.auth
+                    .signOut();
+
+
+                if (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                    alert(
+                        "Logout failed."
+                    );
+
+                    return;
+                }
+
+
+                window.location.href =
+                    "login.html";
+
+            } catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           START
+        ========================================= */
+
+        startDashboard();
+    </script>
+
+</body>
+
+</html>
+
+

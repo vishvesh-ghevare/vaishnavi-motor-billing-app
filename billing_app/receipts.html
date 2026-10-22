@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Receipt History</title>
+
+    <link rel="stylesheet" href="style.css?v=30">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- HTML to Image -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <div class="logo">
+            🧾 Billing App
+        </div>
+
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="new_bill.html">New Receipt</a>
+            <a href="receipts.html">Receipt History</a>
+        </nav>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <h1>Receipt History</h1>
+
+        <p class="subtitle">
+            View all saved receipts
+        </p>
+
+
+        <!-- SEARCH -->
+
+        <div class="recent" style="margin-top:0;">
+
+            <input type="text" id="searchReceipt" placeholder="🔍 Search customer name or receipt number..." onkeyup="searchReceipts()" style="
+                width:100%;
+                padding:13px;
+                border:1px solid #ccc;
+                border-radius:8px;
+                font-size:15px;
+                box-sizing:border-box;
+            ">
+
+        </div>
+
+
+        <!-- RECEIPTS TABLE -->
+
+        <div class="recent">
+
+            <h2>Saved Receipts</h2>
+
+            <div style="overflow-x:auto;">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Receipt No</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="receiptsTable">
+
+                        <tr>
+                            <td colspan="5">
+                                Loading receipts...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+     RECEIPT MODAL
+===================================================== -->
+
+    <div id="receiptModal" style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.75);
+        z-index:9999;
+        overflow:auto;
+        padding:20px;
+        box-sizing:border-box;
+    ">
+
+        <div style="
+            width:100%;
+            max-width:650px;
+            margin:20px auto;
+            background:white;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 10px 40px rgba(0,0,0,0.3);
+        ">
+
+            <!-- =================================================
+             ACTUAL RECEIPT AREA
+        ================================================== -->
+
+            <div id="receiptImageArea" style="
+                width:100%;
+                max-width:650px;
+                margin:0 auto;
+                background:white;
+                color:#222;
+                font-family:Arial,Helvetica,sans-serif;
+                box-sizing:border-box;
+                border:1px solid #ddd;
+            ">
+
+                <!-- TOP ORANGE BAR -->
+
+                <div style="
+                    height:12px;
+                    background:#f97316;
+                    width:100%;
+                "></div>
+
+
+                <!-- HEADER -->
+
+                <div style="
+                    padding:25px 25px 15px 25px;
+                    display:flex;
+                    justify-content:space-between;
+                    gap:20px;
+                    box-sizing:border-box;
+                ">
+
+                    <!-- BUSINESS -->
+
+                    <div style="flex:1;">
+
+                        <div style="
+                            font-size:22px;
+                            font-weight:bold;
+                            color:#111;
+                            line-height:1.3;
+                        ">
+                            VAISHNAVI MOTOR
+                        </div>
+
+                        <div style="
+                            font-size:20px;
+                            font-weight:bold;
+                            color:#111;
+                            line-height:1.3;
+                        ">
+                            REWINDING AND
+                        </div>
+
+                        <div style="
+                            font-size:20px;
+                            font-weight:bold;
+                            color:#111;
+                            line-height:1.3;
+                        ">
+                            ENGINEERING WORKS
+                        </div>
+
+
+                        <div style="
+                            margin-top:10px;
+                            font-size:13px;
+                            color:#555;
+                            line-height:1.6;
+                        ">
+                            Murud, Akola, Latur, Maharashtra
+                        </div>
+
+                        <div style="
+                            font-size:13px;
+                            color:#555;
+                            line-height:1.6;
+                        ">
+                            📞 9834708211 | 7507236713
+                        </div>
+
+                    </div>
+
+
+                    <!-- RECEIPT INFO -->
+
+                    <div style="
+                        min-width:150px;
+                        text-align:right;
+                    ">
+
+                        <div style="
+                            font-size:27px;
+                            font-weight:bold;
+                            color:#f97316;
+                        ">
+                            RECEIPT
+                        </div>
+
+                        <div style="
+                            margin-top:15px;
+                            font-size:13px;
+                            color:#555;
+                        ">
+                            Receipt No.
+                        </div>
+
+                        <div id="modalReceiptNo" style="
+                            font-size:15px;
+                            font-weight:bold;
+                            color:#111;
+                            margin-top:3px;
+                        ">
+                            -
+                        </div>
+
+                        <div style="
+                            margin-top:10px;
+                            font-size:13px;
+                            color:#555;
+                        ">
+                            Date
+                        </div>
+
+                        <div id="modalReceiptDate" style="
+                            font-size:15px;
+                            font-weight:bold;
+                            color:#111;
+                            margin-top:3px;
+                        ">
+                            -
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ORANGE LINE -->
+
+                <div style="
+                    height:3px;
+                    background:#f97316;
+                    margin:0 25px;
+                "></div>
+
+
+                <!-- CUSTOMER -->
+
+                <div style="
+                    padding:18px 25px;
+                ">
+
+                    <div style="
+                        font-size:12px;
+                        color:#777;
+                        text-transform:uppercase;
+                        letter-spacing:1px;
+                    ">
+                        Customer
+                    </div>
+
+                    <div id="modalCustomerName" style="
+                        margin-top:5px;
+                        font-size:18px;
+                        font-weight:bold;
+                        color:#111;
+                    ">
+                        -
+                    </div>
+
+                </div>
+
+
+                <!-- ITEMS TABLE -->
+
+                <div style="
+                    padding:0 25px;
+                ">
+
+                    <table style="
+                        width:100%;
+                        border-collapse:collapse;
+                        font-size:14px;
+                    ">
+
+                        <thead>
+
+                            <tr style="
+                                background:#fff1e8;
+                                border-top:1px solid #f97316;
+                                border-bottom:1px solid #f97316;
+                            ">
+
+                                <th style="
+                                    padding:12px 10px;
+                                    text-align:left;
+                                    color:#c2410c;
+                                ">
+                                    WORK / PRODUCT
+                                </th>
+
+                                <th style="
+                                    padding:12px 10px;
+                                    text-align:right;
+                                    color:#c2410c;
+                                ">
+                                    AMOUNT
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="modalItems">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div style="
+                    padding:20px 25px;
+                ">
+
+                    <div style="
+                        display:flex;
+                        justify-content:flex-end;
+                    ">
+
+                        <div style="
+                            width:260px;
+                            background:#fff1e8;
+                            border:2px solid #f97316;
+                            border-radius:8px;
+                            padding:15px 18px;
+                            box-sizing:border-box;
+                        ">
+
+                            <div style="
+                                display:flex;
+                                justify-content:space-between;
+                                align-items:center;
+                            ">
+
+                                <span style="
+                                    font-size:18px;
+                                    font-weight:bold;
+                                    color:#c2410c;
+                                ">
+                                TOTAL
+                            </span>
+
+                                <span id="modalTotal" style="
+                                    font-size:22px;
+                                    font-weight:bold;
+                                    color:#111;
+                                ">
+                                ₹0.00
+                            </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div style="
+                    padding:10px 25px 25px 25px;
+                    text-align:center;
+                ">
+
+                    <div style="
+                        font-size:15px;
+                        font-weight:bold;
+                        color:#333;
+                    ">
+                        Thank You!
+                    </div>
+
+                    <div style="
+                        margin-top:5px;
+                        font-size:12px;
+                        color:#777;
+                    ">
+                        Thank you for your business.
+                    </div>
+
+                    <div style="
+                        margin-top:25px;
+                        text-align:right;
+                        padding-right:20px;
+                    ">
+
+                        <div style="
+                            font-size:13px;
+                            color:#555;
+                        ">
+                            Authorized Signature
+                        </div><div style="margin-top:8px;text-align:right;"><img src="signature.png" alt="Authorized Signature" style="width:120px;height:auto;max-height:55px;object-fit:contain;"></div>
+
+                        <div style="
+                            width:130px;
+                            border-bottom:1px solid #999;
+                            margin:25px 0 0 auto;
+                        "></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTTOM ORANGE BAR -->
+
+                <div style="
+                    height:12px;
+                    background:#f97316;
+                    width:100%;
+                "></div>
+
+            </div>
+
+
+            <!-- =================================================
+             BUTTONS
+        ================================================== -->
+
+            <div style="
+                padding:18px;
+                display:flex;
+                flex-wrap:wrap;
+                gap:10px;
+                justify-content:center;
+                background:#f8f8f8;
+            ">
+
+                <button onclick="printReceiptFromHistory()" style="
+                    padding:11px 18px;
+                    border:none;
+                    border-radius:7px;
+                    background:#2563eb;
+                    color:white;
+                    font-size:14px;
+                    cursor:pointer;
+                ">
+                🖨 Print Receipt
+            </button>
+
+
+                <button onclick="shareReceiptFromHistory()" style="
+                    padding:11px 18px;
+                    border:none;
+                    border-radius:7px;
+                    background:#16a34a;
+                    color:white;
+                    font-size:14px;
+                    cursor:pointer;
+                ">
+                📱 Share Receipt Image
+            </button>
+
+
+                <button onclick="closeReceiptModal()" style="
+                    padding:11px 18px;
+                    border:none;
+                    border-radius:7px;
+                    background:#555;
+                    color:white;
+                    font-size:14px;
+                    cursor:pointer;
+                ">
+                ✕ Close
+            </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- APP JS -->
+
+    <script src="app.js?v=999"></script>
+
+
+    <script>
+        let allReceipts = [];
+
+        let currentReceipt = null;
+
+
+        /* =====================================================
+           LOAD RECEIPTS
+        ===================================================== */
+
+        async function loadReceipts() {
+
+            const table = document.getElementById("receiptsTable");
+
+            table.innerHTML = `
+        <tr>
+            <td colspan="5">
+                Loading receipts...
+            </td>
+        </tr>
+    `;
+
+            try {
+
+                /*
+                 * First load bills.
+                 */
+
+                const {
+                    data: bills,
+                    error: billError
+                } = await supabaseClient
+                    .from("bills")
+                    .select(`
+                id,
+                bill_number,
+                total,
+                bill_date,
+                customer_id,
+                created_at
+            `)
+                    .order("created_at", {
+                        ascending: false
+                    });
+
+
+                if (billError) {
+
+                    console.error("Bills error:", billError);
+
+                    table.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        ❌ Error loading receipts
+                    </td>
+                </tr>
+            `;
+
+                    return;
+                }
+
+
+                if (!bills || bills.length === 0) {
+
+                    allReceipts = [];
+
+                    displayReceipts([]);
+
+                    return;
+                }
+
+
+                /*
+                 * Get customer IDs.
+                 */
+
+                const customerIds = [
+                    ...new Set(
+                        bills
+                        .map(bill => bill.customer_id)
+                        .filter(id => id !== null && id !== undefined)
+                    )
+                ];
+
+
+                let customers = [];
+
+
+                if (customerIds.length > 0) {
+
+                    const {
+                        data,
+                        error: customerError
+                    } = await supabaseClient
+                        .from("customers")
+                        .select("id,name")
+                        .in("id", customerIds);
+
+
+                    if (customerError) {
+
+                        console.error(
+                            "Customer loading error:",
+                            customerError
+                        );
+
+                    } else {
+
+                        customers = data || [];
+
+                    }
+
+                }
+
+
+                /*
+                 * Create customer map.
+                 */
+
+                const customerMap = {};
+
+                customers.forEach(customer => {
+
+                    customerMap[customer.id] =
+                        customer.name || "Unknown Customer";
+
+                });
+
+
+                /*
+                 * Combine bill + customer.
+                 */
+
+                allReceipts = bills.map(bill => {
+
+                    return {
+                        ...bill,
+
+                        customerName: customerMap[bill.customer_id] ||
+                            "Unknown Customer"
+                    };
+
+                });
+
+
+                displayReceipts(allReceipts);
+
+            } catch (error) {
+
+                console.error(error);
+
+                table.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    ❌ Something went wrong
+                </td>
+            </tr>
+        `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           DISPLAY RECEIPTS
+        ===================================================== */
+
+        function displayReceipts(receipts) {
+
+            const table =
+                document.getElementById("receiptsTable");
+
+            table.innerHTML = "";
+
+
+            if (!receipts || receipts.length === 0) {
+
+                table.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    No receipts found.
+                </td>
+            </tr>
+        `;
+
+                return;
+            }
+
+
+            receipts.forEach(receipt => {
+
+                const date =
+                    receipt.bill_date ?
+                    new Date(
+                        receipt.bill_date
+                    ).toLocaleDateString("en-IN") :
+                    "-";
+
+
+                const total =
+                    Number(receipt.total || 0)
+                    .toFixed(2);
+
+
+                const row =
+                    document.createElement("tr");
+
+
+                row.innerHTML = `
+
+            <td>
+                <strong>
+                    ${escapeReceiptText(
+                        receipt.bill_number
+                    )}
+                </strong>
+            </td>
+
+            <td>
+                ${date}
+            </td>
+
+            <td>
+                ${escapeReceiptText(
+                    receipt.customerName
+                )}
+            </td>
+
+            <td>
+                ₹${total}
+            </td>
+
+            <td>
+
+                <button
+                    onclick="viewReceipt(${receipt.id})"
+                    style="
+                        padding:7px 12px;
+                        border:none;
+                        border-radius:6px;
+                        background:#2563eb;
+                        color:white;
+                        cursor:pointer;
+                    "
+                >
+                    👁 View
+                </button>
+
+            </td>
+
+        `;
+
+
+                table.appendChild(row);
+
+            });
+
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ===================================================== */
+
+        function searchReceipts() {
+
+            const search =
+                document
+                .getElementById("searchReceipt")
+                .value
+                .toLowerCase()
+                .trim();
+
+
+            if (!search) {
+
+                displayReceipts(allReceipts);
+
+                return;
+            }
+
+
+            const filtered =
+                allReceipts.filter(receipt => {
+
+                    const receiptNumber =
+                        String(
+                            receipt.bill_number || ""
+                        ).toLowerCase();
+
+
+                    const customerName =
+                        String(
+                            receipt.customerName || ""
+                        ).toLowerCase();
+
+
+                    return (
+                        receiptNumber.includes(search) ||
+                        customerName.includes(search)
+                    );
+
+                });
+
+
+            displayReceipts(filtered);
+
+        }
+
+
+        /* =====================================================
+           VIEW RECEIPT
+        ===================================================== */
+
+        async function viewReceipt(id) {
+
+            try {
+
+                /*
+                 * Load bill.
+                 */
+
+                const {
+                    data: bill,
+                    error: billError
+                } = await supabaseClient
+                    .from("bills")
+                    .select("*")
+                    .eq("id", id)
+                    .single();
+
+
+                if (billError) {
+
+                    console.error(billError);
+
+                    alert("❌ Unable to load receipt.");
+
+                    return;
+                }
+
+
+                /*
+                 * Load items.
+                 */
+
+                const {
+                    data: items,
+                    error: itemError
+                } = await supabaseClient
+                    .from("bill_items")
+                    .select("*")
+                    .eq("bill_id", id)
+                    .order("id", {
+                        ascending: true
+                    });
+
+
+                if (itemError) {
+
+                    console.error(itemError);
+
+                    alert("❌ Unable to load receipt items.");
+
+                    return;
+                }
+
+
+                /*
+                 * Load customer.
+                 */
+
+                let customerName =
+                    "Unknown Customer";
+
+
+                if (bill.customer_id) {
+
+                    const {
+                        data: customer,
+                        error: customerError
+                    } = await supabaseClient
+                        .from("customers")
+                        .select("name")
+                        .eq("id", bill.customer_id)
+                        .single();
+
+
+                    if (!customerError && customer) {
+
+                        customerName =
+                            customer.name || "Unknown Customer";
+
+                    }
+
+                }
+
+
+                /*
+                 * VERY IMPORTANT:
+                 * Save the currently opened receipt.
+                 */
+
+                currentReceipt = {
+
+                    bill: bill,
+
+                    items: items || [],
+
+                    customerName: customerName
+
+                };
+
+
+                /*
+                 * Receipt number.
+                 */
+
+                document.getElementById(
+                        "modalReceiptNo"
+                    ).textContent =
+                    bill.bill_number || "-";
+
+
+                /*
+                 * Date.
+                 */
+
+                document.getElementById(
+                        "modalReceiptDate"
+                    ).textContent =
+                    bill.bill_date ?
+                    new Date(
+                        bill.bill_date
+                    ).toLocaleDateString("en-IN") :
+                    "-";
+
+
+                /*
+                 * Customer.
+                 */
+
+                document.getElementById(
+                        "modalCustomerName"
+                    ).textContent =
+                    customerName;
+
+
+                /*
+                 * Items.
+                 */
+
+                const itemsContainer =
+                    document.getElementById(
+                        "modalItems"
+                    );
+
+
+                itemsContainer.innerHTML = "";
+
+
+                if (!items || items.length === 0) {
+
+                    itemsContainer.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="2"
+                        style="
+                            padding:15px 10px;
+                            text-align:center;
+                            color:#777;
+                        "
+                    >
+                        No work/product found
+                    </td>
+
+                </tr>
+
+            `;
+
+                } else {
+
+                    items.forEach(item => {
+
+                        const row =
+                            document.createElement("tr");
+
+
+                        row.innerHTML = `
+
+                    <td
+                        style="
+                            padding:12px 10px;
+                            border-bottom:1px solid #eee;
+                            color:#333;
+                        "
+                    >
+                        ${escapeReceiptText(
+                            item.product_name ||
+                            item.name ||
+                            "Work"
+                        )}
+                    </td>
+
+                    <td
+                        style="
+                            padding:12px 10px;
+                            border-bottom:1px solid #eee;
+                            text-align:right;
+                            font-weight:bold;
+                        "
+                    >
+                        ₹${Number(
+                            item.amount || 0
+                        ).toFixed(2)}
+                    </td>
+
+                `;
+
+
+                        itemsContainer.appendChild(row);
+
+                    });
+
+                }
+
+
+                /*
+                 * Total.
+                 */
+
+                document.getElementById(
+                        "modalTotal"
+                    ).textContent =
+                    "₹" +
+                    Number(
+                        bill.total || 0
+                    ).toFixed(2);
+
+
+                /*
+                 * Open modal.
+                 */
+
+                document.getElementById(
+                    "receiptModal"
+                ).style.display = "block";
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("❌ Something went wrong.");
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CLOSE MODAL
+        ===================================================== */
+
+        function closeReceiptModal() {
+
+            document.getElementById(
+                "receiptModal"
+            ).style.display = "none";
+
+        }
+
+
+        /* =====================================================
+           PRINT CURRENT RECEIPT
+        ===================================================== */
+
+        function printReceiptFromHistory() {
+
+            if (!currentReceipt) {
+
+                alert("Please open a receipt first.");
+
+                return;
+            }
+
+
+            const receipt =
+                document.getElementById(
+                    "receiptImageArea"
+                );
+
+
+            if (!receipt) {
+
+                alert("Receipt not available.");
+
+                return;
+            }
+
+
+            const printWindow =
+                window.open(
+                    "",
+                    "_blank",
+                    "width=800,height=900"
+                );
+
+
+            if (!printWindow) {
+
+                alert(
+                    "Please allow pop-ups to print the receipt."
+                );
+
+                return;
+            }
+
+
+            printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                ${escapeReceiptText(
+                    currentReceipt.bill.bill_number
+                )}
+            </title>
+
+            <style>
+
+                body {
+                    margin:0;
+                    padding:20px;
+                    background:white;
+                    font-family:Arial, sans-serif;
+                }
+
+                @media print {
+
+                    body {
+                        padding:0;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            ${receipt.outerHTML}
+
+        </body>
+
+        </html>
+
+    `);
+
+
+            printWindow.document.close();
+
+
+            setTimeout(() => {
+
+                printWindow.focus();
+
+                printWindow.print();
+
+            }, 500);
+
+        }
+
+
+        /* =====================================================
+           CREATE FRESH RECEIPT FOR IMAGE
+           THIS FIXES OLD RECEIPT PROBLEM
+        ===================================================== */
+
+        function createFreshReceiptForImage() {
+
+            if (!currentReceipt) {
+
+                return null;
+            }
+
+
+            const bill =
+                currentReceipt.bill;
+
+
+            const items =
+                currentReceipt.items || [];
+
+
+            const customerName =
+                currentReceipt.customerName ||
+                "Unknown Customer";
+
+
+            /*
+             * Create completely new receipt element.
+             * We do NOT capture the old visible receipt.
+             */
+
+            const receipt =
+                document.createElement("div");
+
+
+            receipt.style.width = "650px";
+            receipt.style.background = "#ffffff";
+            receipt.style.color = "#222";
+            receipt.style.fontFamily =
+                "Arial, Helvetica, sans-serif";
+            receipt.style.boxSizing = "border-box";
+            receipt.style.border =
+                "1px solid #dddddd";
+
+
+            /*
+             * Items HTML.
+             */
+
+            let itemsHTML = "";
+
+
+            if (items.length === 0) {
+
+                itemsHTML = `
+
+            <tr>
+
+                <td
+                    colspan="2"
+                    style="
+                        padding:15px;
+                        text-align:center;
+                        color:#777;
+                    "
+                >
+                    No work/product found
+                </td>
+
+            </tr>
+
+        `;
+
+            } else {
+
+                items.forEach(item => {
+
+                    itemsHTML += `
+
+                <tr>
+
+                    <td
+                        style="
+                            padding:12px 10px;
+                            border-bottom:1px solid #eee;
+                            color:#333;
+                            font-size:14px;
+                        "
+                    >
+                        ${escapeReceiptText(
+                            item.product_name ||
+                            item.name ||
+                            "Work"
+                        )}
+                    </td>
+
+                    <td
+                        style="
+                            padding:12px 10px;
+                            border-bottom:1px solid #eee;
+                            text-align:right;
+                            font-weight:bold;
+                            font-size:14px;
+                        "
+                    >
+                        ₹${Number(
+                            item.amount || 0
+                        ).toFixed(2)}
+                    </td>
+
+                </tr>
+
+            `;
+
+                });
+
+            }
+
+
+            /*
+             * Date.
+             */
+
+            const receiptDate =
+                bill.bill_date ?
+                new Date(
+                    bill.bill_date
+                ).toLocaleDateString("en-IN") :
+                "-";
+
+
+            /*
+             * Build fresh receipt.
+             */
+
+            receipt.innerHTML = `
+
+        <!-- TOP BAR -->
+
+        <div
+            style="
+                height:12px;
+                background:#f97316;
+                width:100%;
+            "
+        ></div>
+
+
+        <!-- HEADER -->
+
+        <div
+            style="
+                padding:25px;
+                display:flex;
+                justify-content:space-between;
+                gap:20px;
+                box-sizing:border-box;
+            "
+        >
+
+            <div style="flex:1;">
+
+                <div
+                    style="
+                        font-size:22px;
+                        font-weight:bold;
+                        color:#111;
+                        line-height:1.3;
+                    "
+                >
+                    VAISHNAVI MOTOR
+                </div>
+
+                <div
+                    style="
+                        font-size:20px;
+                        font-weight:bold;
+                        color:#111;
+                        line-height:1.3;
+                    "
+                >
+                    REWINDING AND
+                </div>
+
+                <div
+                    style="
+                        font-size:20px;
+                        font-weight:bold;
+                        color:#111;
+                        line-height:1.3;
+                    "
+                >
+                    ENGINEERING WORKS
+                </div>
+
+                <div
+                    style="
+                        margin-top:10px;
+                        font-size:13px;
+                        color:#555;
+                        line-height:1.6;
+                    "
+                >
+                    Murud, Akola, Latur, Maharashtra
+                </div>
+
+                <div
+                    style="
+                        font-size:13px;
+                        color:#555;
+                        line-height:1.6;
+                    "
+                >
+                    9834708211 | 7507236713
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    min-width:150px;
+                    text-align:right;
+                "
+            >
+
+                <div
+                    style="
+                        font-size:27px;
+                        font-weight:bold;
+                        color:#f97316;
+                    "
+                >
+                    RECEIPT
+                </div>
+
+                <div
+                    style="
+                        margin-top:15px;
+                        font-size:13px;
+                        color:#555;
+                    "
+                >
+                    Receipt No.
+                </div>
+
+                <div
+                    style="
+                        font-size:15px;
+                        font-weight:bold;
+                        color:#111;
+                        margin-top:3px;
+                    "
+                >
+                    ${escapeReceiptText(
+                        bill.bill_number || "-"
+                    )}
+                </div>
+
+                <div
+                    style="
+                        margin-top:10px;
+                        font-size:13px;
+                        color:#555;
+                    "
+                >
+                    Date
+                </div>
+
+                <div
+                    style="
+                        font-size:15px;
+                        font-weight:bold;
+                        color:#111;
+                        margin-top:3px;
+                    "
+                >
+                    ${receiptDate}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ORANGE LINE -->
+
+        <div
+            style="
+                height:3px;
+                background:#f97316;
+                margin:0 25px;
+            "
+        ></div>
+
+
+        <!-- CUSTOMER -->
+
+        <div
+            style="
+                padding:18px 25px;
+            "
+        >
+
+            <div
+                style="
+                    font-size:12px;
+                    color:#777;
+                    text-transform:uppercase;
+                    letter-spacing:1px;
+                "
+            >
+                Customer
+            </div>
+
+            <div
+                style="
+                    margin-top:5px;
+                    font-size:18px;
+                    font-weight:bold;
+                    color:#111;
+                "
+            >
+                ${escapeReceiptText(customerName)}
+            </div>
+
+        </div>
+
+
+        <!-- ITEMS -->
+
+        <div
+            style="
+                padding:0 25px;
+            "
+        >
+
+            <table
+                style="
+                    width:100%;
+                    border-collapse:collapse;
+                    font-size:14px;
+                "
+            >
+
+                <thead>
+
+                    <tr
+                        style="
+                            background:#fff1e8;
+                            border-top:1px solid #f97316;
+                            border-bottom:1px solid #f97316;
+                        "
+                    >
+
+                        <th
+                            style="
+                                padding:12px 10px;
+                                text-align:left;
+                                color:#c2410c;
+                            "
+                        >
+                            WORK / PRODUCT
+                        </th>
+
+                        <th
+                            style="
+                                padding:12px 10px;
+                                text-align:right;
+                                color:#c2410c;
+                            "
+                        >
+                            AMOUNT
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${itemsHTML}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div
+            style="
+                padding:20px 25px;
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:flex-end;
+                "
+            >
+
+                <div
+                    style="
+                        width:260px;
+                        background:#fff1e8;
+                        border:2px solid #f97316;
+                        border-radius:8px;
+                        padding:15px 18px;
+                        box-sizing:border-box;
+                    "
+                >
+
+                    <div
+                        style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                        "
+                    >
+
+                        <span
+                            style="
+                                font-size:18px;
+                                font-weight:bold;
+                                color:#c2410c;
+                            "
+                        >
+                            TOTAL
+                        </span>
+
+                        <span
+                            style="
+                                font-size:22px;
+                                font-weight:bold;
+                                color:#111;
+                            "
+                        >
+                            ₹${Number(
+                                bill.total || 0
+                            ).toFixed(2)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div
+            style="
+                padding:10px 25px 25px 25px;
+                text-align:center;
+            "
+        >
+
+            <div
+                style="
+                    font-size:15px;
+                    font-weight:bold;
+                    color:#333;
+                "
+            >
+                Thank You!
+            </div>
+
+            <div
+                style="
+                    margin-top:5px;
+                    font-size:12px;
+                    color:#777;
+                "
+            >
+                Thank you for your business.
+            </div>
+
+            <div
+                style="
+                    margin-top:25px;
+                    text-align:right;
+                    padding-right:20px;
+                "
+            >
+
+                <div
+                    style="
+                        font-size:13px;
+                        color:#555;
+                    "
+                >
+                    Authorized Signature
+                </div><div style="margin-top:8px;text-align:right;"><img src="signature.png" alt="Authorized Signature" style="width:120px;height:auto;max-height:55px;object-fit:contain;"></div>
+
+                <div
+                    style="
+                        width:130px;
+                        border-bottom:1px solid #999;
+                        margin:25px 0 0 auto;
+                    "
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOTTOM BAR -->
+
+        <div
+            style="
+                height:12px;
+                background:#f97316;
+                width:100%;
+            "
+        ></div>
+
+    `;
+
+
+            return receipt;
+
+        }
+
+
+        /* =====================================================
+           SHARE CURRENT RECEIPT AS IMAGE
+        ===================================================== */
+
+        async function shareReceiptFromHistory() {
+
+            if (!currentReceipt) {
+
+                alert("Please open a receipt first.");
+
+                return;
+            }
+
+
+            try {
+
+                /*
+                 * Create a NEW receipt.
+                 */
+
+                const freshReceipt =
+                    createFreshReceiptForImage();
+
+
+                if (!freshReceipt) {
+
+                    alert("Receipt image could not be created.");
+
+                    return;
+                }
+
+
+                /*
+                 * Put it outside the visible modal.
+                 */
+
+                freshReceipt.style.position =
+                    "fixed";
+
+                freshReceipt.style.left =
+                    "-10000px";
+
+                freshReceipt.style.top =
+                    "0";
+
+                freshReceipt.style.zIndex =
+                    "-1";
+
+
+                document.body.appendChild(
+                    freshReceipt
+                );
+
+
+                /*
+                 * Give browser time to render.
+                 */
+
+                await new Promise(resolve =>
+                    setTimeout(resolve, 500)
+                );
+
+
+                /*
+                 * Convert fresh receipt to canvas.
+                 */
+
+                const canvas =
+                    await html2canvas(
+                        freshReceipt, {
+                            scale: 2,
+
+                            backgroundColor: "#ffffff",
+
+                            useCORS: true,
+
+                            logging: false
+                        }
+                    );
+
+
+                /*
+                 * Remove temporary receipt.
+                 */
+
+                document.body.removeChild(
+                    freshReceipt
+                );
+
+
+                /*
+                 * Convert to PNG.
+                 */
+
+                const blob =
+                    await new Promise(resolve => {
+
+                        canvas.toBlob(
+                            resolve,
+                            "image/png"
+                        );
+
+                    });
+
+
+                if (!blob) {
+
+                    alert(
+                        "Unable to create receipt image."
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * Current receipt number.
+                 */
+
+                const receiptNumber =
+                    currentReceipt.bill.bill_number ||
+                    "Receipt";
+
+
+                const fileName =
+                    "Receipt-" +
+                    receiptNumber +
+                    ".png";
+
+
+                const file =
+                    new File(
+                        [blob],
+                        fileName, {
+                            type: "image/png"
+                        }
+                    );
+
+
+                /*
+                 * MOBILE / SUPPORTED BROWSER
+                 *
+                 * Share image file.
+                 */
+
+                if (
+                    navigator.share &&
+                    navigator.canShare &&
+                    navigator.canShare({
+                        files: [file]
+                    })
+                ) {
+
+                    await navigator.share({
+
+                        title: "Receipt " +
+                            receiptNumber,
+
+                        text: "VAISHNAVI MOTOR REWINDING AND ENGINEERING WORKS Receipt",
+
+                        files: [file]
+
+                    });
+
+                    return;
+                }
+
+
+                /*
+                 * DESKTOP FALLBACK
+                 *
+                 * Download current receipt image.
+                 */
+
+                const url =
+                    URL.createObjectURL(blob);
+
+
+                const link =
+                    document.createElement("a");
+
+
+                link.href = url;
+
+                link.download =
+                    fileName;
+
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                document.body.removeChild(link);
+
+
+                setTimeout(() => {
+
+                    URL.revokeObjectURL(url);
+
+                }, 1000);
+
+
+                alert(
+                    "✅ Current receipt image downloaded.\n\n" +
+                    "Now attach this PNG image in WhatsApp."
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Receipt image error:",
+                    error
+                );
+
+
+                if (
+                    error &&
+                    error.name === "AbortError"
+                ) {
+
+                    return;
+                }
+
+
+                alert(
+                    "❌ Unable to create/share receipt image."
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           ESCAPE HTML
+        ===================================================== */
+
+        function escapeReceiptText(text) {
+
+            return String(text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =====================================================
+           START
+        ===================================================== */
+
+        loadReceipts();
+
+
+        /* =====================================================
+           CLOSE MODAL WHEN CLICKING OUTSIDE
+        ===================================================== */
+
+        document.getElementById(
+            "receiptModal"
+        ).addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeReceiptModal();
+
+                }
+
+            }
+        );
+    </script>
+
+</body>
+
+</html>
+

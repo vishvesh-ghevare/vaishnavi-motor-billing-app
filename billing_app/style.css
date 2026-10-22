@@ -1,0 +1,651 @@
+/* VAISHNAVI MOTOR - Dashboard */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f7fb;
+    color: #1d2f49;
+}
+
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    height: 78px;
+    padding: 0 42px;
+    background: #12233e;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f57c18;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.brand-name {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.brand-name span {
+    color: #ff7818;
+}
+
+.brand-subtitle {
+    margin-top: 3px;
+    color: #b9c7d9;
+    font-size: 10px;
+}
+
+.nav-links {
+    height: 78px;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+}
+
+.nav-links a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 17px;
+    color: #e8edf5;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: #fff;
+}
+
+.nav-links a.active {
+    color: #ff791d;
+}
+
+.nav-links a.active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 4px;
+    height: 3px;
+    background: #ff791d;
+    border-radius: 3px;
+}
+
+.logout-btn {
+    align-self: center;
+    margin-left: 14px;
+    border: 0;
+    border-radius: 6px;
+    padding: 10px 19px;
+    background: #ff7d20;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background: #eb690c;
+}
+
+
+/* ================= MAIN ================= */
+
+.container {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 26px 0 25px;
+    min-height: calc(100vh - 126px);
+}
+
+.dashboard-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.dashboard-heading h1 {
+    margin: 0;
+    color: #1b2e49;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.dashboard-heading p {
+    margin: 4px 0 0;
+    color: #7890ab;
+    font-size: 13px;
+}
+
+.current-date {
+    min-width: 155px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #dce5ee;
+    border-radius: 6px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: #8192a8;
+    font-size: 11px;
+}
+
+
+/* ================= STAT CARDS ================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    position: relative;
+    min-height: 116px;
+    padding: 17px 16px 16px 19px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 15px rgba(24, 50, 80, 0.08);
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.customers-card::before {
+    background: #2588f5;
+}
+
+.receipts-card::before {
+    background: #7658ed;
+}
+
+.collection-card::before {
+    background: #16aa78;
+}
+
+.today-card::before {
+    background: #ff9d18;
+}
+
+.stat-icon {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.stat-icon.blue {
+    background: #318bf0;
+}
+
+.stat-icon.purple {
+    background: #7658ed;
+}
+
+.stat-icon.green {
+    background: #25b77c;
+    font-size: 23px;
+}
+
+.stat-icon.orange {
+    background: #ffa31c;
+}
+
+.stat-content {
+    min-width: 0;
+}
+
+.stat-title {
+    margin-bottom: 4px;
+    color: #5b6f89;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.stat-value {
+    margin-bottom: 8px;
+    color: #192e4b;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.stat-trend {
+    color: #12a66e;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+
+/* ================= RECENT RECEIPTS ================= */
+
+.receipt-section {
+    background: #fff;
+    border-radius: 9px;
+    padding: 18px 17px 14px;
+    box-shadow: 0 4px 16px rgba(24, 50, 80, 0.08);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 17px;
+}
+
+.section-title-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-icon {
+    width: 31px;
+    height: 31px;
+    border-radius: 5px;
+    background: #ff7b20;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.section-title-area h2 {
+    margin: 0;
+    color: #1d3150;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.section-title-area p {
+    margin: 3px 0 0;
+    color: #8192a8;
+    font-size: 10px;
+}
+
+
+/* ================= SEARCH ================= */
+
+.receipt-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.search-box {
+    width: 235px;
+    height: 35px;
+    border: 1px solid #dce5ef;
+    border-radius: 6px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+}
+
+.search-box span {
+    color: #8395aa;
+    font-size: 17px;
+}
+
+.search-box input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #334a65;
+    font-size: 10.5px;
+}
+
+.search-box input::placeholder {
+    color: #9aaabd;
+}
+
+.search-btn {
+    height: 35px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 6px;
+    background: #ff781d;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #eb680f;
+}
+
+
+/* ================= TABLE ================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+}
+
+thead tr {
+    background: #f4f7fb;
+}
+
+th {
+    padding: 11px 13px;
+    text-align: left;
+    color: #526781;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+td {
+    padding: 10px 13px;
+    border-bottom: 1px solid #e9eef4;
+    color: #465b75;
+    font-size: 10.5px;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+tbody tr:hover {
+    background: #fbfcfe;
+}
+
+.receipt-number {
+    font-weight: 600;
+    color: #3f5570;
+}
+
+.amount {
+    color: #ff7017;
+    font-weight: 700;
+}
+
+.view-cell {
+    text-align: right;
+}
+
+.view-btn {
+    min-width: 53px;
+    padding: 4px 12px;
+    border: 1px solid #ffb27d;
+    border-radius: 6px;
+    background: #fffaf6;
+    color: #ff741b;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.view-btn:hover {
+    background: #fff0e5;
+}
+
+.table-loading,
+.empty-message {
+    text-align: center;
+    padding: 30px !important;
+    color: #8192a8;
+}
+
+
+/* ================= FOOTER ================= */
+
+footer {
+    min-height: 48px;
+    background: #12233e;
+    color: #d4dce7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+
+/* ================= LOADING ================= */
+
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f4f7fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-box {
+    width: 220px;
+    padding: 28px;
+    text-align: center;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(20, 40, 70, 0.12);
+}
+
+.loading-box h2 {
+    margin: 13px 0 0;
+    color: #233956;
+    font-size: 16px;
+}
+
+.loading-spinner {
+    width: 28px;
+    height: 28px;
+    margin: auto;
+    border: 3px solid #e8edf3;
+    border-top-color: #f97316;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ================= RECEIPT HISTORY SUPPORT ================= */
+
+.topbar {
+    min-height: 70px;
+    padding: 0 35px;
+    background: #12233e;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topbar .logo {
+    font-weight: 800;
+    font-size: 19px;
+}
+
+.topbar nav {
+    display: flex;
+    gap: 20px;
+}
+
+.topbar nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.dashboard {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 30px 0;
+}
+
+.recent {
+    background: #fff;
+    border-radius: 9px;
+    padding: 18px;
+    margin-top: 18px;
+    box-shadow: 0 4px 16px rgba(24, 50, 80, 0.08);
+}
+
+.recent table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent th {
+    background: #f4f7fb;
+}
+
+.recent td,
+.recent th {
+    padding: 11px 13px;
+    text-align: left;
+}
+
+.recent td button {
+    border: 1px solid #ffb27d;
+    background: #fffaf6;
+    color: #ff741b;
+    border-radius: 6px;
+    padding: 5px 12px;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 950px) {
+    .navbar {
+        padding: 0 20px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .receipt-search {
+        width: 100%;
+    }
+    .search-box {
+        flex: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .navbar {
+        height: auto;
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .nav-links {
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .nav-links a {
+        height: 40px;
+        padding: 0 9px;
+    }
+    .logout-btn {
+        margin-left: 3px;
+    }
+    .container {
+        width: calc(100% - 24px);
+        padding-top: 22px;
+    }
+    .dashboard-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .current-date {
+        width: 100%;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .receipt-search {
+        width: 100%;
+    }
+}
+
+@media (max-width: 430px) {
+    .brand-name {
+        font-size: 17px;
+    }
+    .brand-subtitle {
+        font-size: 9px;
+    }
+    .receipt-search {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-box,
+    .search-btn {
+        width: 100%;
+    }
+}

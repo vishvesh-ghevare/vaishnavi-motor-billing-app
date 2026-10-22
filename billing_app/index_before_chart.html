@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAISHNAVI MOTOR - Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=6"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- LOGIN CHECK -->
+    <div id="loadingOverlay">
+        <div class="loading-box">
+            <div class="loading-spinner"></div>
+            <h2>Checking login...</h2>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="brand">
+            <div class="brand-icon">⚙</div>
+            <div>
+                <div class="brand-name">VAISHNAVI <span>MOTOR</span></div>
+                <div class="brand-subtitle">Rewinding and Engineering Works</div>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="index.html" class="active">
+                <span>⌂</span> Dashboard
+            </a>
+
+            <a href="new_bill.html">
+                <span>▤</span> New Receipt
+            </a>
+
+            <a href="receipts.html">
+                <span>▤</span> Receipt History
+            </a>
+
+            <button class="logout-btn" onclick="logoutUser()">
+                ⇥ Logout
+            </button>
+        </nav>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <div class="dashboard-heading">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back! Here's your business overview.</p>
+            </div>
+
+            <div class="current-date" id="currentDate">
+                <span>▣</span>
+                <span id="dateText">Loading date...</span>
+            </div>
+        </div>
+
+        <!-- STAT CARDS -->
+        <section class="stats-grid">
+
+            <div class="stat-card customers-card">
+                <div class="stat-icon blue">♟</div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Customers</div>
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-trend" id="customerTrend">↑ Customers</div>
+                </div>
+            </div>
+
+            <div class="stat-card receipts-card">
+                <div class="stat-icon purple">▤</div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Receipts</div>
+                    <div class="stat-value" id="totalReceipts">0</div>
+                    <div class="stat-trend" id="receiptTrend">↑ Receipts</div>
+                </div>
+            </div>
+
+            <div class="stat-card collection-card">
+                <div class="stat-icon green">₹</div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Collection</div>
+                    <div class="stat-value" id="totalSales">₹0</div>
+                    <div class="stat-trend" id="collectionTrend">↑ Collection</div>
+                </div>
+            </div>
+
+            <div class="stat-card today-card">
+                <div class="stat-icon orange">▣</div>
+                <div class="stat-content">
+                    <div class="stat-title">Today's Receipts</div>
+                    <div class="stat-value" id="todayReceipts">0</div>
+                    <div class="stat-trend" id="todayTrend">↑ Today</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RECENT RECEIPTS -->
+        <section class="receipt-section">
+
+            <div class="section-header">
+                <div class="section-title-area">
+                    <div class="section-icon">▤</div>
+                    <div>
+                        <h2>Recent Receipts</h2>
+                        <p>Latest 10 receipts from your business</p>
+                    </div>
+                </div>
+
+                <div class="receipt-search">
+                    <div class="search-box">
+                        <span>⌕</span>
+                        <input
+                            type="text"
+                            id="receiptSearch"
+                            placeholder="Search by receipt no. or customer..."
+                        >
+                    </div>
+
+                    <button class="search-btn" onclick="searchDashboardReceipts()">
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Receipt No.</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="recentReceiptsBody">
+                        <tr>
+                            <td colspan="5" class="table-loading">
+                                Loading receipts...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        Developed by: Vishvesh Mahadev Ghevare
+    </footer>
+
+
+<script>
+let dashboardReceipts = [];
+
+function formatCurrency(value) {
+    const amount = Number(value || 0);
+    return "₹" + amount.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    });
+}
+
+function formatDate(dateValue) {
+    if (!dateValue) return "-";
+
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "-";
+
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function getTodayString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function updateCurrentDate() {
+    const now = new Date();
+
+    document.getElementById("dateText").textContent =
+        now.toLocaleDateString("en-GB", {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        });
+}
+
+function escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = String(value ?? "");
+    return div.innerHTML;
+}
+
+async function loadDashboardData() {
+    try {
+        const [
+            customersResult,
+            billsResult
+        ] = await Promise.all([
+            supabaseClient
+                .from("customers")
+                .select("id", { count: "exact", head: true }),
+
+            supabaseClient
+                .from("bills")
+                .select(`
+                    id,
+                    bill_number,
+                    total,
+                    bill_date,
+                    created_at,
+                    customer_id,
+                    customers (
+                        name
+                    )
+                `)
+                .order("created_at", { ascending: false })
+        ]);
+
+        if (customersResult.error) {
+            console.error("Customers error:", customersResult.error);
+        }
+
+        if (billsResult.error) {
+            console.error("Bills error:", billsResult.error);
+            throw billsResult.error;
+        }
+
+        const bills = billsResult.data || [];
+        dashboardReceipts = bills;
+
+        const totalCustomers = customersResult.count || 0;
+        const totalReceipts = bills.length;
+
+        const totalCollection = bills.reduce(
+            (sum, bill) => sum + Number(bill.total || 0),
+            0
+        );
+
+        const today = getTodayString();
+
+        const todayBills = bills.filter((bill) => {
+            const value = bill.bill_date || bill.created_at;
+            if (!value) return false;
+
+            return String(value).slice(0, 10) === today;
+        });
+
+        document.getElementById("totalCustomers").textContent =
+            totalCustomers.toLocaleString("en-IN");
+
+        document.getElementById("totalReceipts").textContent =
+            totalReceipts.toLocaleString("en-IN");
+
+        document.getElementById("totalSales").textContent =
+            formatCurrency(totalCollection);
+
+        document.getElementById("todayReceipts").textContent =
+            todayBills.length.toLocaleString("en-IN");
+
+        document.getElementById("customerTrend").textContent =
+            "↑ " + totalCustomers + " total customers";
+
+        document.getElementById("receiptTrend").textContent =
+            "↑ " + totalReceipts + " saved receipts";
+
+        document.getElementById("collectionTrend").textContent =
+            "↑ All-time collection";
+
+        document.getElementById("todayTrend").textContent =
+            "↑ " + todayBills.length + " today";
+
+        renderRecentReceipts(bills.slice(0, 10));
+
+    } catch (error) {
+        console.error("Dashboard loading error:", error);
+
+        document.getElementById("recentReceiptsBody").innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-message">
+                    Unable to load receipts.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function renderRecentReceipts(receipts) {
+    const body = document.getElementById("recentReceiptsBody");
+
+    if (!receipts || receipts.length === 0) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-message">
+                    No receipts found.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    body.innerHTML = receipts.map((receipt) => {
+        const customerName =
+            receipt.customers?.name || "Unknown Customer";
+
+        const receiptNumber =
+            receipt.bill_number || "-";
+
+        const receiptDate =
+            receipt.bill_date || receipt.created_at;
+
+        return `
+            <tr>
+                <td class="receipt-number">
+                    ${escapeHTML(receiptNumber)}
+                </td>
+
+                <td>
+                    ${escapeHTML(customerName)}
+                </td>
+
+                <td>
+                    ${formatDate(receiptDate)}
+                </td>
+
+                <td class="amount">
+                    ${formatCurrency(receipt.total)}
+                </td>
+
+                <td class="view-cell">
+                    <button
+                        class="view-btn"
+                        onclick="viewReceipt('${escapeHTML(receiptNumber)}')"
+                    >
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function searchDashboardReceipts() {
+    const search =
+        document.getElementById("receiptSearch").value
+            .trim()
+            .toLowerCase();
+
+    if (!search) {
+        renderRecentReceipts(dashboardReceipts.slice(0, 10));
+        return;
+    }
+
+    const filtered = dashboardReceipts.filter((receipt) => {
+        const receiptNumber =
+            String(receipt.bill_number || "").toLowerCase();
+
+        const customerName =
+            String(receipt.customers?.name || "").toLowerCase();
+
+        return (
+            receiptNumber.includes(search) ||
+            customerName.includes(search)
+        );
+    });
+
+    renderRecentReceipts(filtered.slice(0, 10));
+}
+
+function viewReceipt(receiptNumber) {
+    window.location.href =
+        "receipts.html?search=" +
+        encodeURIComponent(receiptNumber);
+}
+
+document.getElementById("receiptSearch").addEventListener(
+    "keydown",
+    function(event) {
+        if (event.key === "Enter") {
+            searchDashboardReceipts();
+        }
+    }
+);
+
+async function logoutUser() {
+    try {
+        const { error } =
+            await supabaseClient.auth.signOut();
+
+        if (error) {
+            console.error("Logout error:", error);
+            alert("Logout failed.");
+            return;
+        }
+
+        window.location.href = "login.html";
+
+    } catch (error) {
+        console.error("Logout error:", error);
+        window.location.href = "login.html";
+    }
+}
+
+async function startDashboard() {
+    try {
+        updateCurrentDate();
+
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error || !session) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        await loadDashboardData();
+
+        document.getElementById("loadingOverlay").style.display = "none";
+
+    } catch (error) {
+        console.error("Login check error:", error);
+        window.location.href = "login.html";
+    }
+}
+
+startDashboard();
+</script>
+
+</body>
+</html>

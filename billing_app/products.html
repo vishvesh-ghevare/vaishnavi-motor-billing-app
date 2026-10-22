@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Products - Billing App</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <div class="logo">
+            🧾 Billing App
+        </div>
+
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="customers.html">Customers</a>
+            <a href="products.html">Products</a>
+            <a href="new_bill.html">New Bill</a>
+            <a href="#">Bill History</a>
+        </nav>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <h1>📦 Products</h1>
+
+        <p class="subtitle">
+            Manage your 4 regular products
+        </p>
+
+
+        <!-- PRODUCT 1 -->
+
+        <section class="quick-actions product-box">
+
+            <h2>Product 1</h2>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Product Name</label>
+
+                    <input type="text" id="productName1" placeholder="Enter product name">
+                </div>
+
+
+                <div>
+                    <label>Price (₹)</label>
+
+                    <input type="number" id="productPrice1" placeholder="Enter price" min="0" step="0.01">
+                </div>
+
+            </div>
+
+            <button onclick="saveProduct(1)">
+            💾 Save Product 1
+        </button>
+
+        </section>
+
+
+        <!-- PRODUCT 2 -->
+
+        <section class="quick-actions product-box">
+
+            <h2>Product 2</h2>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Product Name</label>
+
+                    <input type="text" id="productName2" placeholder="Enter product name">
+                </div>
+
+
+                <div>
+                    <label>Price (₹)</label>
+
+                    <input type="number" id="productPrice2" placeholder="Enter price" min="0" step="0.01">
+                </div>
+
+            </div>
+
+            <button onclick="saveProduct(2)">
+            💾 Save Product 2
+        </button>
+
+        </section>
+
+
+        <!-- PRODUCT 3 -->
+
+        <section class="quick-actions product-box">
+
+            <h2>Product 3</h2>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Product Name</label>
+
+                    <input type="text" id="productName3" placeholder="Enter product name">
+                </div>
+
+
+                <div>
+                    <label>Price (₹)</label>
+
+                    <input type="number" id="productPrice3" placeholder="Enter price" min="0" step="0.01">
+                </div>
+
+            </div>
+
+            <button onclick="saveProduct(3)">
+            💾 Save Product 3
+        </button>
+
+        </section>
+
+
+        <!-- PRODUCT 4 -->
+
+        <section class="quick-actions product-box">
+
+            <h2>Product 4</h2>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Product Name</label>
+
+                    <input type="text" id="productName4" placeholder="Enter product name">
+                </div>
+
+
+                <div>
+                    <label>Price (₹)</label>
+
+                    <input type="number" id="productPrice4" placeholder="Enter price" min="0" step="0.01">
+                </div>
+
+            </div>
+
+            <button onclick="saveProduct(4)">
+            💾 Save Product 4
+        </button>
+
+        </section>
+
+
+        <p id="productMessage"></p>
+
+
+        <!-- MANUAL PRODUCT INFORMATION -->
+
+        <section class="quick-actions">
+
+            <h2>✏️ Manual Product Entry</h2>
+
+            <p>
+                During billing, you can also enter a product manually if it is not one of the 4 regular products.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
